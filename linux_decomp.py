@@ -49,10 +49,11 @@ data_entry_addr = elf.get_section_by_name(".data").header["sh_addr"]
 data = elf.get_section_by_name(".data").data()
 
 for key_loc in key_addr:
-    offset = int(key_loc, 16) - data_entry_addr
-    key = reversed(data[offset:].split(b"\x00", 1)[0])
-    key_plaintext = "".join(format(int(x), "x") for x in key).upper()
-    key_merged = merge_hex_key(key_plaintext)
-    print(
-        f"Found potential Mirai XOR key at location {key_loc}\t->\t{key_plaintext}\t->\t{key_merged}"
-    )
+    if key_loc.count(" ") == 0:
+        offset = int(key_loc, 16) - data_entry_addr
+        key = reversed(data[offset : offset + 4])
+        key_plaintext = "".join(format(int(x), "x").zfill(2) for x in key).upper()
+        key_merged = merge_hex_key(key_plaintext)
+        print(
+            f"Found potential Mirai XOR key at location {key_loc}\t->\t{key_plaintext}\t->\t{key_merged}"
+        )
